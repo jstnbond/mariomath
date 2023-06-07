@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Times Tables Practice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+  background-image: url("https://static.wixstatic.com/media/477e55_10d03ec25e5e44d2bdf34548e5dc60d1~mv2.png");
+    background-size: cover;
+ background-position: center 1%; /* Center the background image horizontally and lower it 80% on the vertical axis */
+ background-repeat: no-repeat; /* Prevent the background image from repeating */
+
+    }
+	  
+	  audio#backgroundMusic {
+      width: 100%;
+      height: 30px;
+      background-color: #f2f2f2;
+      border-radius: 5px;
+      outline: none;
+    }
+
+   .container {
+    width: 400px;
+    margin: 0;
+    margin-left: 200px; /* Adjust the left margin value to move the container to the left */
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+	
+	  
+
+	 
+  }
+
+    h1 {
+       text-align: center;
+    font-family: "Arial", sans-serif; /* Change the font family to Arial or your desired font */
+    font-size: 24px; /* Change the font size to your desired value */
+    color: #333; /* Change the color of the title */
+    margin-top: 10px; /* Add some margin at the top of the title */
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    #output {
+      min-height: 100px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+      font-family: "MathJax";
+    }
+  </style>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div class="container">
+	    
+    <h1>Multiplication & Division Fact Families</h1>
+    <label for="time-limit">Time Limit (in minutes):</label>
+    <input type="number" id="time-limit" placeholder="Enter time limit" />
+    <button onclick="startGame()">Start Timer</button>
+    <div id="question"></div>
+    <input type="text" id="answer" placeholder="Enter your answer" />
+    <div id="score"></div>
+    <div id="output"></div>
+    <div id="timer"></div>
+	   <!-- Audio element for correct sound -->
+  <audio id="correctSound" src="https://static.wixstatic.com/mp3/477e55_ab2e2bdced4b418c880ffec4c0747de6.mp3"></audio>
+	  <audio id="incorrectSound" src="https://static.wixstatic.com/mp3/477e55_b4b613d5be594d46ad8a6d69402ab79b.wav"></audio>
+<audio id="backgroundMusic" src="https://static.wixstatic.com/mp3/477e55_1219d97dde3b4855a8bfe09e2cceea85.mp3" loop controls></audio>
+
+  </div>
+
+  <script>
+    let timeLimit = 0;
+    let timerInterval;
+    let currentTime;
+let attemptCount; // Variable to track the number of attempts
+	  
+	  
+    function startGame() {
+      timeLimit = parseFloat(document.getElementById("time-limit").value, 10) * 60;
+      if (isNaN(timeLimit) || timeLimit <= 0) {
+        alert("Please enter a valid time limit.");
+        return;
+      }
+answerElement.disabled = false;
+      currentTime = timeLimit;
+      timerInterval = setInterval(updateTimer, 1000);
+      resetGame();
+      displayQuestion();
+    }
+
+    function resetGame() {
+      const scoreElement = document.getElementById("score");
+      const outputElement = document.getElementById("output");
+      const timerElement = document.getElementById("timer");
+ const questionElement = document.getElementById("question");
+		
+      scoreElement.textContent = "Score: 0";
+      outputElement.textContent = "";
+      timerElement.textContent = "Time: " + timeLimit + "s";
+//questionElement.textContent = "";
+		
+      currentProblemIndex = getRandomIndex();
+      currentStepIndex = 0;
+      score = 0;
+    }
+
+    function updateTimer() {
+      const timerElement = document.getElementById("timer");
+      timerElement.textContent = "Time: " + formatTime(currentTime);
+      currentTime--;
+
+      if (currentTime < 0) {
+        clearInterval(timerInterval);
+        endGame();
+      }
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const remainingSeconds = (seconds % 60).toString().padStart(2, "0");
+      return minutes + ":" + remainingSeconds;
+    }
+
+    function endGame() {
+		
+      const scoreElement = document.getElementById("score");
+      const outputElement = document.getElementById("output");
+      const timerElement = document.getElementById("timer");
+const timeLimitElement = document.getElementById("time-limit");
+		const questionElement = document.getElementById("question");
+		answerElement.disabled = true;
+       if (scoreElement.textContent.includes("Game Over!")) {
+        return; // If game is already over, do nothing
+      }
+      scoreElement.textContent = "Game Over! Final Score: " + score + " (Time Limit: " + timeLimitElement.value + " minutes)";
+      outputElement.textContent = "";
+      timerElement.textContent = "";
+		  questionElement.textContent = "";
+		 const gameoverSound = new Audio("https://static.wixstatic.com/mp3/477e55_be6ceac4aa02474f8f3b5389f08fa245.wav");
+      gameoverSound.play();
+    }
+
+    function getRandomIndex() {
+      return Math.floor(Math.random() * mathProblems.length);
+    }
+
+	  const correctSounds = [
+  "https://static.wixstatic.com/mp3/477e55_11fba7232ca3477baa63dc147e0df6a9.wav",
+  "https://static.wixstatic.com/mp3/477e55_744138ea23a14172958f41eaf6ef0e25.wav",
+  "https://static.wixstatic.com/mp3/477e55_fb42d979ec6b418f83fe1dcf925b3d19.wav",
+  // Add more sound URLs as needed
+];
+
+function playRandomCorrectSound() {
+  // Get a random index from the correctSounds array
+  const randomIndex = Math.floor(Math.random() * correctSounds.length);
+  // Get the random sound URL using the random index
+  const randomSoundUrl = correctSounds[randomIndex];
+
+  // Create a new audio element
+  const audio = new Audio(randomSoundUrl);
+  // Play the random sound
+  audio.play();
+}
+	
+	  
+	   const incorrectSounds = [
+  "https://static.wixstatic.com/mp3/477e55_9cf36e7b476243caa165c4af3313105a.wav",
+  "https://static.wixstatic.com/mp3/477e55_271fc09eb46747358e30cd6f43fe9051.mp3",
+  "https://static.wixstatic.com/mp3/477e55_8ca19630566f4ffd80c1eb627c5b697d.mp3",
+  // Add more sound URLs as needed
+];
+	
+function playRandominCorrectSound() {
+  // Get a random index from the correctSounds array
+  const randomIndex = Math.floor(Math.random() * correctSounds.length);
+  // Get the random sound URL using the random index
+  const randomSoundUrl = incorrectSounds[randomIndex];
+
+  // Create a new audio element
+  const audio = new Audio(randomSoundUrl);
+  // Play the random sound
+  audio.play();
+}
+	
+    const mathProblems = [];
+ 
+    for (let i = 1; i <= 12; i++) {
+      for (let j = 1; j <= 12; j++) {
+        mathProblems.push({
+          question: `Evaluate: ${i} &times; ${j}`,
+          steps: [
+            "",
+            "No problem, try again!",
+            "Try one more time!"
+          ],
+          answer: i * j
+        },
+                         
+                         {
+      question: `Evaluate: ${i * j} &divide; ${j}`,
+      steps: [
+        "",
+        "No problem, try again!",
+        "Try one more time!"
+      ],
+      answer: i
+    });
+      }
+    }
+
+
+
+    let currentProblemIndex;
+    let currentStepIndex;
+    let score;
+let isAnswerEnabled = true; // Variable to track answer input field enable/disable state
+	  
+    const questionElement = document.getElementById("question");
+    const answerElement = document.getElementById("answer");
+    const scoreElement = document.getElementById("score");
+    const outputElement = document.getElementById("output");
+
+  function displayQuestion() {
+	  attemptCount = 1; // Reset the attempt count
+  const question = mathProblems[currentProblemIndex].question;
+  const questionElement = document.getElementById("question");
+  questionElement.innerHTML = question;
+
+  MathJax.typesetPromise().then(() => {
+    const answerElement = document.getElementById("answer");
+    answerElement.value = "";
+    answerElement.focus();
+  });
+}
+
+
+  function displayOutput(message) {
+  const outputElement = document.getElementById("output");
+  outputElement.innerHTML += message + "<br>";
+
+  MathJax.typesetPromise().then(() => {
+    // Scroll to the bottom of the output
+    outputElement.scrollTop = outputElement.scrollHeight;
+  });
+}
+
+
+    function processAnswer() {
+      const answer = parseFloat(answerElement.value);
+		 // Disable answer input field during timeout
+ 
+		
+      if (answer === mathProblems[currentProblemIndex].answer) {
+        displayOutput("Nice!");
+       if (25 - 5*attemptCount > 0) {score += 25 - 5*attemptCount}
+		  else {score += 0} // Increment score by 25 for each correct answer
+ //const correctSound = document.getElementById("correctSound");
+	//	  const incorrectSound = document.getElementById("incorrectSound");
+    //correctSound.play();
+		  playRandomCorrectSound();
+        currentProblemIndex = getRandomIndex();
+        currentStepIndex = 0;
+        scoreElement.textContent = "Score: " + score;
+answerElement.disabled = true;
+		  
+        setTimeout(function() {
+          outputElement.textContent = "";
+          displayQuestion();
+			 answerElement.disabled = false;
+        }, 2000); // Change the delay time (in milliseconds) as needed
+      } else {
+		const incorrectSound = document.getElementById("incorrectSound");
+    
+		 
+        if (currentStepIndex === 0) {
+			incorrectSound.play();
+          displayOutput("Try again!");
+          currentStepIndex++;
+			 attemptCount++; // Increment the attempt count
+		
+        } else {
+			
+          const steps = mathProblems[currentProblemIndex].steps;
+			 attemptCount++; // Increment the attempt count
+          if (currentStepIndex < steps.length) {
+			  incorrectSound.play();
+            displayOutput(steps[currentStepIndex]);
+            currentStepIndex++;
+          } else {
+			  
+			   playRandominCorrectSound();
+			  answerElement.disabled = true;
+            outputElement.textContent = "";
+			  displayOutput("Not quite but nice try! Let's try a different problem.");
+			  
+            currentProblemIndex = getRandomIndex();
+            currentStepIndex = 0;
+            scoreElement.textContent = "Score: 0";
+
+            setTimeout(function() {
+              outputElement.textContent = "";
+              displayQuestion();
+				answerElement.disabled = false;
+            }, 2000);
+          }
+        }
+      }
+    }
+
+  answerElement.addEventListener("keyup", function(event) {
+  if (!answerElement.disabled && event.keyCode === 13) {
+    event.preventDefault();
+    processAnswer();
+  }
+});
+
+	  
+  </script>
+</body>
+</html>
